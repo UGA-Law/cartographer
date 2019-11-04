@@ -35,3 +35,5 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+require('./src/Scraper/mainScrapeAPI.js')

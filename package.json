@@ -1,6 +1,6 @@
 {
-  "name": "chamber",
-  "description": "chamber app description",
+  "name": "cartographer",
+  "description": "Scrapes a given website and also renders scraped website data.",
   "author": {
     "name": "Victor Lawrence",
     "email": "VictorLawrenceCode@gmail.com"
@@ -11,7 +11,9 @@
   "scripts": {
     "dist": "node build.js",
     "start": "node ignite.js",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "test": "jest",
+    "jumbo": "node ./src/Scraper/jumbo.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -20,13 +22,25 @@
     "concurrently": "^5.0.0",
     "electron": "^6.0.12",
     "electron-builder": "^21.2.0",
+    "electron-is-dev": "^1.1.0",
     "electron-reload": "^1.5.0",
-    "parcel-bundler": "^1.12.4",
-    "electron-is-dev": "^1.1.0"
+    "jest": "^24.9.0",
+    "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
+    "crawler-url-parser": "^2.0.5",
+    "cuid": "^2.1.6",
+    "moment": "^2.24.0",
+    "mongodb": "^3.3.3",
+    "node-redis": "^0.1.7",
+    "normalize-url": "^4.5.0",
+    "phantomjs": "^2.1.7",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "styled-components": "^4.4.0"
+    "redis": "^2.8.0",
+    "styled-components": "^4.4.0",
+    "toiletdb": "^2.0.0",
+    "x-ray": "^2.3.4",
+    "x-ray-phantom": "^1.0.1"
   }
 }

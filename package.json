@@ -24,6 +24,7 @@
     "electron-builder": "^21.2.0",
     "electron-is-dev": "^1.1.0",
     "electron-reload": "^1.5.0",
+    "eslint-plugin-react-hooks": "^2.2.0",
     "jest": "^24.9.0",
     "parcel-bundler": "^1.12.4"
   },

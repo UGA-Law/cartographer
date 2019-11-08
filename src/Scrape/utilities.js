@@ -49,10 +49,20 @@ const getScrapableLinks = ({ pageLinks = [], pageUrl }) => {
     } else {
       return false
     }
+  }).map(({ href: rawHref, text }) => {
+    const linkParts = cup.parse(rawHref, pageUrl)
+    const { subdomain, domain, path } = linkParts
+    const href = `https://${subdomain ? `${subdomain}.` : ''}${domain}${path}`.toLowerCase()
+    return { href, rawHref, text, ...linkParts }
   })
 }
 
+const timeout = ms => new Promise((resolve, reject) => {
+  setTimeout(resolve, ms)
+})
+
 module.exports = {
   normalizeUrl,
-  getScrapableLinks
+  getScrapableLinks,
+  timeout
 }

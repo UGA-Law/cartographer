@@ -93,36 +93,58 @@ const removeItemWithinCollection = ({ collection, lookup }) => new Promise((reso
   })
 })
 
-const readAllFromCollection = ({ collection }) => new Promise((resolve, reject) => {
-  collection.find({}).toArray((error, documents) => {
+const readAllFromCollection = ({ collection, limit = 0, skip = 0 }) => new Promise((resolve, reject) => {
+  const callback = (error, results) => {
     if (error) {
       reject(error)
     } else {
-      resolve(documents)
+      resolve(results)
     }
-  })
+  }
+
+  if (skip > 0) {
+    if (limit > 0) {
+      collection.find({}).skip(skip).limit(limit).toArray(callback)
+    } else {
+      collection.find({}).skip(skip).toArray(callback)
+    }
+  } else if (limit > 0) {
+    collection.find({}).limit(limit).toArray(callback)
+  } else {
+    collection.find({}).toArray(callback)
+  }
 })
 
-const readManyWithinCollection = ({ collection, lookup }) => new Promise((resolve, reject) => {
-  collection.find(lookup).toArray(
-    (error, results) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(results)
-      }
+const readManyWithinCollection = ({ collection, lookup, skip = 0, limit = 0 }) => new Promise((resolve, reject) => {
+  const callback = (error, results) => {
+    if (error) {
+      reject(error)
+    } else {
+      resolve(results)
     }
-  )
+  }
+
+  if (skip > 0) {
+    if (limit > 0) {
+      collection.find(lookup).skip(skip).limit(limit).toArray(callback)
+    } else {
+      collection.find(lookup).skip(skip).toArray(callback)
+    }
+  } else if (limit > 0) {
+    collection.find(lookup).limit(limit).toArray(callback)
+  } else {
+    collection.find(lookup).toArray(callback)
+  }
 })
 
 const crudifyCollection = ({ collection }) => {
   const create = ({ document }) => addToCollection({ collection, document })
   const update = ({ lookup, data }) => updateItemWithinCollection({ collection, lookup, data })
   const remove = ({ lookup }) => removeItemWithinCollection({ collection, lookup })
-  const readOne = ({ lookup }) => lookupItemWithinCollection({ collection, lookup })
-  const readMany = ({ lookup }) => readManyWithinCollection({ collection, lookup })
+  const readOne = ({ lookup, ...rest }) => lookupItemWithinCollection({ collection, lookup, ...rest })
+  const readMany = ({ lookup, ...rest }) => readManyWithinCollection({ collection, lookup, ...rest })
   const has = ({ lookup }) => isWithinCollection({ collection, lookup })
-  const readAll = ({ skip = 0, count = 100 }) => readAllFromCollection({ collection, skip, count })
+  const readAll = ({ ...rest }) => readAllFromCollection({ collection, ...rest })
   const add = create
   const addIfNew = ({ lookup, document }) => new Promise((resolve, reject) => {
     has({ lookup }).then(verdict => {

@@ -22,21 +22,23 @@ export const useMongoClient = () => {
   }
 }
 
-export const useMongoDataOne = ({ filter, collectionName, dbName }) => {
+export const useMongoDataOne = ({ filter, collectionName, dbName, isEnabled = true }) => {
   const [result, setResult] = useState(null)
   const [isWorking, setIsWorking] = useState(false)
   const { client, isConnected } = useMongoClient()
 
   useEffect(() => {
-    if (client && isConnected) {
+    if (client && isConnected && isEnabled) {
       setIsWorking(true)
-      client.db(dbName)
-        .collection(collectionName).findOne(filter).then((result) => {
-          setResult(result)
-          setIsWorking(false)
-        })
+      setTimeout(() => {
+        client.db(dbName)
+          .collection(collectionName).findOne(filter).then((result) => {
+            setResult(result)
+            setIsWorking(false)
+          })
+      }, Math.random() * 100)
     }
-  }, [])
+  }, [client, isConnected, isEnabled])
 
   return {
     result,

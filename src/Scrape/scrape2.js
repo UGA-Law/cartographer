@@ -208,7 +208,7 @@ const workOnBacklog = async ({ backlog, pageData, projectName, ...rest }) => {
     await Promise.all(workBatch.map(batchItem => workload({ batchItem, backlog, pageData, projectName })))
     const endMoment = moment()
     console.log(`[batch] Completed. Updated Count: ${workBatch.length}`)
-    console.log(`[batch] Time Taken: ${ startMoment.from(endMoment, true) }`)
+    console.log(`[batch] Time Taken: ${startMoment.from(endMoment, true)}`)
     const nextCount = await backlog.find({ hasScrapeData: false, projectName }).count()
     if (nextCount > 0) {
       await timeout(100).then(async () => {

@@ -31,16 +31,20 @@
   "dependencies": {
     "crawler-url-parser": "^2.0.5",
     "cuid": "^2.1.6",
+    "md5": "^2.2.1",
     "moment": "^2.24.0",
     "mongodb": "^3.3.3",
+    "natural-compare-lite": "^1.4.0",
     "node-redis": "^0.1.7",
     "normalize-url": "^4.5.0",
     "phantomjs": "^2.1.7",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "redis": "^2.8.0",
+    "string-natural-compare": "^3.0.0",
     "styled-components": "^4.4.0",
     "toiletdb": "^2.0.0",
+    "valid-url": "^1.0.9",
     "x-ray": "^2.3.4",
     "x-ray-phantom": "^1.0.1"
   }

@@ -86,3 +86,31 @@ export const useMongoDataMany = ({
     results
   }
 }
+
+export const useMongoDataDistinct = ({
+  fieldName,
+  collectionName,
+  dbName,
+  filter
+}) => {
+  const [ results, setResults ] = useState([])
+  const [ isWorking, setIsWorking ] = useState(false)
+  const { client, isConnected } = useMongoClient()
+  useEffect(() => {
+    if (client && isConnected) {
+      setIsWorking(true)
+      client.db(dbName)
+        .collection(collectionName)
+        .distinct(fieldName, { ...filter })
+        .then(results => {
+          setIsWorking(false)
+          setResults(results)
+        })
+    }
+  }, [isConnected])
+  return {
+    isConnected,
+    isWorking,
+    results
+  }
+}

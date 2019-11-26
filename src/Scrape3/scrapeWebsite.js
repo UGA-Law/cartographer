@@ -24,7 +24,7 @@ function sendMessage (payload) {
 
 const { getMongoClient } = require('../Utilities/getMongoClient.js')
 
-const { mongoDatabaseName } = require('../../common/settings.js')
+const { mongoDatabaseName, projectName: configuredProjectName } = require('../../common/settings.js')
 
 const Xray = require('x-ray')
 
@@ -119,6 +119,23 @@ const checkIfWasFound = ({ data }) => {
       }
     }
     return false
+  } else {
+    return false
+  }
+}
+
+const checkIfWasRestricted = ({ data }) => {
+  if (data) {
+    const { pageTitle } = data
+    if (pageTitle) {
+      if (pageTitle.toLowerCase().indexOf('access denied') > -1) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
   } else {
     return false
   }
@@ -339,7 +356,14 @@ const classifyLinks = ({ array, masterWebsiteURL }) => {
   })
 }
 
-const formatScrapedData = ({ data, wasFound, url: pageURL, masterWebsiteURL, canScrape }) => {
+const formatScrapedData = ({
+  data,
+  wasFound,
+  url: pageURL,
+  masterWebsiteURL,
+  canScrape,
+  wasRestricted
+}) => {
   const normalizedUrl = normalizeUrl({ url: pageURL })
 
   const urlID = urlToUrlID({ url: pageURL })
@@ -382,6 +406,7 @@ const formatScrapedData = ({ data, wasFound, url: pageURL, masterWebsiteURL, can
       masterWebsiteURL,
       scrapeTimestamp,
       wasRejected: false,
+      wasRestricted,
       pageLinks: [...pageLinks]
     }
   } else {
@@ -397,6 +422,7 @@ const formatScrapedData = ({ data, wasFound, url: pageURL, masterWebsiteURL, can
       masterWebsiteURL,
       scrapeTimestamp,
       wasRejected: true,
+      wasRestricted,
       pageLinks: []
     }
   }
@@ -451,9 +477,17 @@ const scrapeUrl = ({ url, masterWebsiteURL, ...rest }) => new Promise((resolve, 
         }))
       } else {
         const wasFound = checkIfWasFound({ error, data })
+        const wasRestricted = checkIfWasRestricted({ error, data })
         if (wasFound) {
           if (data) {
-            resolve(formatScrapedData({ data, wasFound, url, masterWebsiteURL, canScrape: verdict }))
+            resolve(formatScrapedData({
+              data,
+              wasFound,
+              url,
+              masterWebsiteURL,
+              canScrape: verdict,
+              wasRestricted
+            }))
           } else {
             console.error('No Data!?!', { error, data, url })
             sendMessage({
@@ -470,12 +504,26 @@ const scrapeUrl = ({ url, masterWebsiteURL, ...rest }) => new Promise((resolve, 
             reject(new Error(`No Data?!? ${url}`))
           }
         } else {
-          resolve(formatScrapedData({ data, wasFound, url, masterWebsiteURL, canScrape: verdict }))
+          resolve(formatScrapedData({
+            data,
+            wasFound,
+            url,
+            masterWebsiteURL,
+            canScrape: verdict,
+            wasRestricted
+          }))
         }
       }
     })
   } else {
-    resolve(formatScrapedData({ data: null, wasFound: false, url, masterWebsiteURL, canScrape: verdict }))
+    resolve(formatScrapedData({
+      data: null,
+      wasFound: false,
+      url,
+      masterWebsiteURL,
+      canScrape: verdict,
+      wasRestricted: false
+    }))
   }
 })
 
@@ -713,7 +761,8 @@ const processPage = async ({
   }
 }
 
-const scrapeWebsite = async ({ url: masterWebsiteURL, projectName }) => {
+const scrapeWebsite = async ({ url: masterWebsiteURL, projectName: specifiedProjectName }) => {
+  const projectName = specifiedProjectName || configuredProjectName
   const client = getMongoClient()
   try {
     await client.connect()

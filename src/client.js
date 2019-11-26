@@ -5,5 +5,5 @@ import { ScrapeMode } from './App/components/ScrapeMode.js'
 import { SitemapMode } from './App/components/SitemapMode.js'
 
 // render(<App />, document.getElementById('root'))
-// render(<ScrapeMode />, document.getElementById('root'))
-render(<SitemapMode />, document.getElementById('root'))
+render(<ScrapeMode />, document.getElementById('root'))
+// render(<SitemapMode />, document.getElementById('root'))

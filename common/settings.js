@@ -5,5 +5,6 @@ module.exports = {
   mongoDatabaseName: 'cartographer-scrape-database',
   mongoOptions: {
     useUnifiedTopology: true
-  }
+  },
+  projectName: 'development-002'
 }

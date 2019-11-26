@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 
 import { scrapeWebsite } from '../../Scrape3/scrapeWebsite.js'
 import { useScrapeMessages } from '../hooks/useScrapeMessages.js'
+import { projectName } from '../../../common/settings.js'
 // import { isReferenced } from '@babel/types'
 
 const ScrapeModeContainer = styled.div`
@@ -23,8 +24,6 @@ const TextBox = styled.input`
 const Button = styled.button`
 
 `
-
-const projectName = 'development'
 
 const FancyWorkloadBox = styled.div`
   display: flex;

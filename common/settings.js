@@ -6,5 +6,5 @@ module.exports = {
   mongoOptions: {
     useUnifiedTopology: true
   },
-  projectName: 'development-002'
+  projectName: 'development-003'
 }

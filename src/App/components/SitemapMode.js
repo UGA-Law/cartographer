@@ -1,6 +1,133 @@
 import React from 'react'
-import naturalCompare from 'string-natural-compare'
+import styled, { css } from 'styled-components'
 import { useMongoDataDistinct } from '../hooks/mongo.js'
+import { FixedSizeTree as Tree } from 'react-vtree'
+import { formatResults } from './utilities/formatResults.js'
+import { formattedResultsToTree } from './utilities/formatResultsToTree.js'
+import AutoSizer from 'react-virtualized-auto-sizer'
+
+const StylishNode = styled.div`
+  border: 1px solid black;
+  padding: 1rem;
+  ${
+    props => {
+      if (props.isLeaf) {
+        return css`
+          background: yellow;
+          border-left-radius: 1rem;
+        `
+      }
+    }
+  }
+  ${
+    props => {
+      if (props.nestingLevel > 0) {
+        return css`
+          border-left: ${props.nestingLevel * 2}rem solid black;
+        `
+      }
+    }
+  }
+
+`
+
+const StylishExpanderButton = styled.div`
+  border: 1px solid black;
+  background: black;
+  color: white;
+  display: inline-flex;
+  // width: 1rem;
+  padding: 0 .25rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 1rem;
+  margin-right: 1rem;
+`
+
+const Node = ({ data: { isLeaf, name, nestingLevel, childCount }, isOpen, style, toggle }) => {
+  const canExpand = !isLeaf
+  return (
+    <StylishNode style={style} nestingLevel={nestingLevel} isLeaf={isLeaf} onClick={toggle}>
+      {
+        canExpand ? (
+          <StylishExpanderButton onClick={toggle}>{isOpen ? 'collapse' : 'expand'}</StylishExpanderButton>
+        ) : null
+      }
+      <span>Name: {name} {childCount > 0 ? `(${childCount})` : null}</span>
+    </StylishNode>
+  )
+}
+
+const StylishRenderRoot = styled.div`
+  display: flex;
+  flex-grow: 1;
+`
+
+const renderResults = formattedResults => {
+  const canRender = Array.isArray(formattedResults) && formattedResults.length > 0
+
+  const tree = formattedResultsToTree(formattedResults)
+
+  function * treeWalker (refresh) {
+    const stack = []
+
+    stack.push({
+      nestingLevel: 0,
+      node: tree
+    })
+
+    while (stack.length !== 0) {
+      const { node, nestingLevel } = stack.pop()
+      const { children, id, name } = node
+
+      const childCount = children.length
+
+      const isLeaf = Array.isArray(children) && children.length === 0
+
+      const isOpened = yield refresh ? {
+        id,
+        isLeaf,
+        isOpenByDefault: false,
+        name,
+        nestingLevel,
+        childCount
+      } : id
+
+      if (children.length !== 0 && isOpened) {
+        for (const child of children) {
+          stack.push({
+            nestingLevel: nestingLevel + 1,
+            node: child
+          })
+        }
+      }
+    }
+  }
+
+  return canRender ? (
+    <StylishRenderRoot>
+      <AutoSizer>
+        {({ height, width }) => {
+          return (
+            <Tree treeWalker={treeWalker} itemSize={52} height={height} width={width}>
+              {Node}
+            </Tree>
+          )
+        }}
+      </AutoSizer>
+    </StylishRenderRoot>
+  ) : (
+    <div>Nothing to display.</div>
+  )
+}
+
+const StylishPageRoot = styled.div`
+  display: flex;
+  height: 100vh;
+  border: 1rem solid white;
+`
 
 export const SitemapMode = () => {
   const {
@@ -14,77 +141,19 @@ export const SitemapMode = () => {
     filter: { wasFound: true }
   })
 
-  const formatResults = (resultsRaw) => {
-    const output = resultsRaw.map((rawUrl) => {
-      const parsableUrl = new URL(rawUrl)
-      const pathPartsRaw = parsableUrl.pathname.split('/')
-      pathPartsRaw.shift()
-      const pathParts = pathPartsRaw.map(part => `/${part}`)
-      const pathBreakdown = []
-      let previousPart = null
-      for (const part of pathParts) {
-        if (previousPart == null) {
-          pathBreakdown.push(part)
-          previousPart = part
-        } else {
-          previousPart = `${previousPart}${part}`
-          pathBreakdown.push(previousPart)
-        }
-      }
-      return {
-        url: rawUrl,
-        path: parsableUrl.pathname,
-        pathBreakdown
-      }
-    })
-    const internalSet = new Set()
-    const cleanList = output
-      .sort((a, b) => naturalCompare(a.path, b.path))
-      .filter((item) => {
-        if (internalSet.has(item.path)) {
-          return false
-        } else {
-          internalSet.add(item.path)
-          return true
-        }
-      })
-
-    const finalList = []
-
-    for (const item of cleanList) {
-      const { pathBreakdown, path, url } = item
-      if (pathBreakdown.length > 1) {
-        finalList.push({
-          path,
-          children: []
-        })
-      } else {
-        finalList.push({
-          path,
-          children: []
-        })
-      }
-    }
-
-    return finalList
-  }
-
   if (results) {
     return (
-      <div>
-        <div>Sitemap Mode</div>
-        <div>isConnected: {isConnected ? 'Yes' : 'No'}</div>
-        <div>isWorking: {isWorking ? 'Yes' : 'No'}</div>
-        <pre>{JSON.stringify(formatResults(results), null, '  ')}</pre>
-      </div>
+      <StylishPageRoot>
+        {renderResults(formatResults(results))}
+      </StylishPageRoot>
     )
   } else {
     return (
-      <div>
+      <StylishPageRoot>
         <div>Sitemap Mode</div>
         <div>isConnected: {isConnected ? 'Yes' : 'No'}</div>
         <div>isWorking: {isWorking ? 'Yes' : 'No'}</div>
-      </div>
+      </StylishPageRoot>
     )
   }
 }

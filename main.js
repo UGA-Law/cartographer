@@ -17,9 +17,10 @@ const webPreferences = {
 const createWindow = () => {
   mainWindow = new BrowserWindow({ width, height, webPreferences })
   mainWindow.on('closed', () => { mainWindow = null })
+  const port = process.env.CARTOGRAPHER_PORT || devPort
   mainWindow.loadURL(
     isDev
-      ? `http://localhost:${devPort}`
+      ? `http://localhost:${port}`
       : `file://${path.join(__dirname, '../build/index.html')}`
   )
 }

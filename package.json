@@ -29,6 +29,7 @@
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
+    "array-to-tree": "^3.3.2",
     "crawler-url-parser": "^2.0.5",
     "cuid": "^2.1.6",
     "md5": "^2.2.1",
@@ -40,6 +41,9 @@
     "phantomjs": "^2.1.7",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
+    "react-virtualized-auto-sizer": "^1.0.2",
+    "react-vtree": "^1.0.0",
+    "react-window": "^1.8.5",
     "redis": "^2.8.0",
     "string-natural-compare": "^3.0.0",
     "styled-components": "^4.4.0",

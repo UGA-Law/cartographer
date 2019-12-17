@@ -81,7 +81,7 @@ export const UpDown = ({
   return (
     <Element>
       <UpperButton onClick={upperClickHandler}>+</UpperButton>
-      <CurrentBox>{ current }</CurrentBox>
+      <CurrentBox>{current}</CurrentBox>
       <LowerButton onClick={lowerClickHandler}>-</LowerButton>
     </Element>
   )

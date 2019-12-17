@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
-// import { useJSONFile } from '../hooks/useJSONFile.js'
-// import naturalCompare from 'string-natural-compare'
-
 import { scrapeWebsite } from '../../Scrape3/scrapeWebsite.js'
 import { useScrapeMessages } from '../hooks/useScrapeMessages.js'
 import { projectName } from '../../../common/settings.js'
-// import { isReferenced } from '@babel/types'
+
+import moment from 'moment'
+
+// {  // current performance on www.law.uga.edu:
+//   sessionStartMoment: '2019-11-26T13:33:42-05:00',
+//   endMoment: '2019-11-26T22:13:29-05:00'
+// } // total time: ~9 hours
 
 const ScrapeModeContainer = styled.div`
   border: 1rem solid black;
@@ -89,8 +92,9 @@ const RenderWorkloadItems = ({
 }
 
 const RenderBacklog = ({ count, additions }) => {
-  if (additions > 0) {
-    return <div>Backlog: {count} ( + {additions} )</div>
+  const maxWorkloadSize = 200
+  if (additions - maxWorkloadSize > 0) {
+    return <div>Backlog: {count} ( + {additions - maxWorkloadSize} )</div>
   } else {
     return <div>Backlog: {count}</div>
   }
@@ -131,9 +135,14 @@ const RenderBacklog = ({ count, additions }) => {
 //   )
 // }
 
+let sessionStartMoment
+
 export const ScrapeMode = () => {
+  // const [workloadStartMoment, setWorkloadStartMoment] = useState(null)
   const [isScraping, setIsScraping] = useState(false)
   const [activeWorkloadIsComplete, setActiveWorkloadIsComplete] = useState(false)
+
+  const [workTimeTotal, setWorkTimeTotal] = useState(0)
 
   const [urlToScrape, setUrlToScrape] = useState('https://www.law.uga.edu')
 
@@ -164,7 +173,10 @@ export const ScrapeMode = () => {
       } else if (note === 'Workload Complete') {
         handleWorkloadCompleted()
       } else if (note === 'All Done.') {
+        const endMoment = moment().format()
+        console.log({ sessionStartMoment, endMoment })
         setIsScraping(false)
+        setWorkTimeTotal(moment(endMoment).from(moment(sessionStartMoment)))
       }
     }
 
@@ -175,43 +187,6 @@ export const ScrapeMode = () => {
         handleJobStart()
       }
     }
-
-    // if (subject === 'x-ray') {
-    //   if (note === 'start') {
-    //     setXrayWorkingItems((existingItems) => {
-    //       if (existingItems.find(item => item.urlID === payload.urlID)) {
-    //         return existingItems
-    //       } else {
-    //         return [
-    //           { ...payload, isSuccessful: false, isFailure: false },
-    //           ...existingItems
-    //         ]
-    //       }
-    //     })
-    //   } else if (note === 'end') {
-    //     setXrayWorkingItems((existingItems) => {
-    //       return [
-    //         ...existingItems.map(item => {
-    //           if (item.urlID === payload.urlID) {
-    //             return {
-    //               ...item,
-    //               toBeRemoved: true
-    //             }
-    //           } else {
-    //             return item
-    //           }
-    //         })
-    //       ]
-    //     })
-    //     setTimeout(() => {
-    //       setXrayWorkingItems((existingItems) => {
-    //         return [
-    //           ...existingItems.filter(item => item.urlID !== payload.urlID)
-    //         ]
-    //       })
-    //     }, 1000)
-    //   }
-    // }
 
     function handleWorkloadStarted () {
       setBacklogAdditions(0)
@@ -257,6 +232,9 @@ export const ScrapeMode = () => {
 
   const handleScrapeButtonClick = event => {
     if (isScraping === false) {
+      const startMoment = moment().format()
+      console.log({ startMoment })
+      sessionStartMoment = startMoment
       setIsScraping(true)
       scrapeWebsite({ url: urlToScrape, projectName }).then(() => {
         setIsScraping(false)
@@ -272,6 +250,7 @@ export const ScrapeMode = () => {
       <div>
         { isScraping ? 'SCRAPING ON' : null }
       </div>
+      <div>Total Work Time: {workTimeTotal}</div>
       <TextBox value={urlToScrape} onChange={handleTextboxChange} disabled={isScraping} />
       <Button onClick={handleScrapeButtonClick} disabled={isScraping}>Scrape!</Button>
       <RenderBacklog count={backlogCount} additions={backlogAdditions} />

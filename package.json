@@ -37,7 +37,7 @@
     "mongodb": "^3.3.3",
     "natural-compare-lite": "^1.4.0",
     "node-redis": "^0.1.7",
-    "normalize-url": "^4.5.0",
+    "normalize-url": "^4.5.1",
     "phantomjs": "^2.1.7",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",

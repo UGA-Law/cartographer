@@ -33,7 +33,7 @@
     "crawler-url-parser": "^2.0.5",
     "cuid": "^2.1.6",
     "md5": "^2.2.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mongodb": "^3.3.3",
     "natural-compare-lite": "^1.4.0",
     "node-redis": "^0.1.7",
